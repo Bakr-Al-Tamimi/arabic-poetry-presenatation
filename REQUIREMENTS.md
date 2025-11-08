@@ -60,6 +60,20 @@ The application addresses a significant gap in modern Arabic poetry presentation
 - Print functionality with print-optimized layout
 - وظيفة الطباعة مع تخطيط محسّن للطباعة
 
+#### Poem Library & Storage / مكتبة القصائد والتخزين
+- Save multiple poems to browser localStorage
+- حفظ قصائد متعددة في التخزين المحلي للمتصفح
+- Load saved poems from library
+- تحميل القصائد المحفوظة من المكتبة
+- Delete unwanted poems
+- حذف القصائد غير المرغوب فيها
+- Create new blank poems
+- إنشاء قصائد جديدة فارغة
+- Automatic poem preservation for 7 days
+- الحفظ التلقائي للقصائد لمدة 7 أيام
+- Browse library with poem titles and dates
+- تصفح المكتبة مع عناوين القصائد وتواريخها
+
 ### 4. User Experience Goals / أهداف تجربة المستخدم
 - Intuitive interface requiring no training
 - واجهة بديهية لا تتطلب تدريباً
@@ -114,23 +128,27 @@ The application addresses a significant gap in modern Arabic poetry presentation
 #### Component Structure
 ```
 src/
-├── App.tsx              # Main application component
-├── main.tsx             # Application entry point
-├── index.css            # Global styles and Tailwind imports
+├── App.tsx                    # Main application component
+├── main.tsx                   # Application entry point
+├── index.css                  # Global styles and Tailwind imports
+├── components/
+│   └── PoemLibrary.tsx        # Poem library management component
 ├── utils/
-│   └── exportUtils.ts   # PDF and Word export functionality
-└── vite-env.d.ts        # TypeScript environment definitions
+│   ├── exportUtils.ts         # PDF and Word export functionality
+│   └── security.ts            # Input sanitization, state persistence, rate limiting
+└── vite-env.d.ts              # TypeScript environment definitions
 ```
 
 #### State Management
 - React useState hooks for local component state
+- localStorage for persistent poem library
 - No external state management library needed (appropriate for app scope)
 - State includes:
-  - Poem text
-  - Poem title
-  - Poet name and information
-  - Comments and vocabulary
-  - UI state (copy confirmation, etc.)
+  - Current poem data (text, title, poet info, comments)
+  - Saved poems library
+  - UI state (copy confirmation, modals, etc.)
+  - Auto-save working state (debounced)
+  - Current poem ID for tracking loaded poems
 
 ### 3. Core Functionality / الوظائف الأساسية
 
@@ -148,6 +166,20 @@ parsePoem(text: string): string[][]
 exportToPDF(elementId: string, filename: string): Promise<void>
 exportToWord(poemData: PoemData, filename: string): Promise<void>
 printPoem(): void
+```
+
+#### Security & Storage Functions
+```typescript
+sanitizeText(text: string, maxLength: number): string
+sanitizeTitle(title: string): string
+sanitizeName(name: string): string
+checkRateLimit(): boolean
+saveState(state: PersistedState): void
+loadState(): PersistedState | null
+getSavedPoems(): SavedPoem[]
+savePoem(poem: SavedPoem): string
+deletePoem(id: string): void
+updatePoem(id: string, updates: Partial<SavedPoem>): void
 ```
 
 #### Copy to Clipboard
@@ -250,16 +282,23 @@ printPoem(): void
 - Utility function separation
 
 ### 10. Future Enhancement Possibilities / إمكانيات التحسين المستقبلية
-- Database integration for poem storage (Supabase ready)
-- User authentication and poem collections
+- ✅ Multi-poem library (IMPLEMENTED)
+- ✅ Persistent storage with expiration (IMPLEMENTED)
+- ✅ Input sanitization and security (IMPLEMENTED)
+- Database integration for cloud storage (Supabase ready)
+- User authentication and private collections
 - Sharing via social media
-- Multiple poem sea (بحر) detection
+- Export to other formats (PNG, SVG)
+- Multiple poem meter (بحر) detection
 - Diacritical mark (tashkeel) highlighting
 - Audio recording integration
 - Collaborative editing
 - Translation support
 - Advanced typography controls
 - Theme customization
+- Search and filter in library
+- Tagging and categorization
+- Import from file
 
 ---
 
@@ -269,10 +308,12 @@ printPoem(): void
 ```json
 {
   "@supabase/supabase-js": "^2.57.4",
-  "docx": "latest",
-  "file-saver": "latest",
-  "html2canvas": "latest",
-  "jspdf": "latest",
+  "@types/dompurify": "^3.0.5",
+  "docx": "^9.5.1",
+  "dompurify": "^3.3.0",
+  "file-saver": "^2.0.5",
+  "html2canvas": "^1.4.1",
+  "jspdf": "^3.0.3",
   "lucide-react": "^0.344.0",
   "react": "^18.3.1",
   "react-dom": "^18.3.1"
@@ -329,6 +370,14 @@ printPoem(): void
 - [ ] Responsive design on mobile/tablet/desktop
 - [ ] RTL text rendering
 - [ ] Font loading and display
+- [ ] Save poem to library
+- [ ] Load poem from library
+- [ ] Delete poem from library
+- [ ] Create new blank poem
+- [ ] Auto-save functionality (debounced)
+- [ ] Input sanitization (XSS prevention)
+- [ ] Rate limiting on export functions
+- [ ] 7-day expiration of old poems
 
 ### Potential Automated Tests
 - Unit tests for poem parsing logic
@@ -340,12 +389,38 @@ printPoem(): void
 
 ## 🔒 Security Considerations / الاعتبارات الأمنية
 
-- Client-side only application (no data transmission)
+### Input Security / أمان الإدخال
+- **DOMPurify** integration for XSS protection
+- حماية من هجمات XSS باستخدام DOMPurify
+- All user input sanitized before storage and display
+- جميع مدخلات المستخدم منقّاة قبل التخزين والعرض
+- Maximum length limits on all text inputs
+- حدود قصوى لطول جميع المدخلات النصية
+  - Poem text: 50,000 characters
+  - Title/Name: 200 characters
+
+### Rate Limiting / تحديد المعدل
+- Export and print functions rate-limited to once per 2 seconds
+- وظائف التصدير والطباعة محدودة بمرة واحدة كل ثانيتين
+- Prevents abuse and performance issues
+- يمنع إساءة الاستخدام ومشاكل الأداء
+
+### Data Storage / تخزين البيانات
+- Client-side only (no data transmission to servers)
+- جانب العميل فقط (لا نقل للبيانات للخوادم)
+- localStorage with automatic 7-day expiration
+- التخزين المحلي مع انتهاء صلاحية تلقائي بعد 7 أيام
+- All stored data sanitized on retrieval
+- جميع البيانات المخزنة منقّاة عند الاسترجاع
+- Maximum 50 poems per library
+- حد أقصى 50 قصيدة في المكتبة
+
+### General Security / الأمان العام
 - No user authentication required
-- No sensitive data storage
-- No external API calls
 - Safe clipboard API usage
-- XSS protection through React's built-in escaping
+- XSS protection through React's built-in escaping + DOMPurify
+- No external API calls (except font loading)
+- Secure error handling without exposing system details
 
 ---
 

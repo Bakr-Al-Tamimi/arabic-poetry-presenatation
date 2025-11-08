@@ -49,19 +49,29 @@
 - **تصدير Word** - ملف .docx مع تنسيق عربي صحيح
 - **طباعة** - تخطيط محسّن للطباعة
 
+### 📚 مكتبة القصائد
+- **حفظ متعدد** - حفظ قصائد غير محدودة (حتى 50 قصيدة)
+- **تحميل وتبديل** - التنقل بين القصائد المحفوظة
+- **إدارة كاملة** - حفظ، تحميل، حذف القصائد
+- **تاريخ وترتيب** - مشاهدة تاريخ حفظ كل قصيدة
+- **قصيدة جديدة** - ابدأ قصيدة فارغة جديدة
+
 ### 🎯 مميزات إضافية
 - تأثيرات بصرية عند التفاعل
 - إشعارات نجاح العمليات
-- حفظ تلقائي للعمل في المتصفح
+- حفظ تلقائي للعمل الحالي في المتصفح
 - لا يتطلب تسجيل دخول
+- عمل بدون اتصال بعد التحميل الأولي
 
 ### 🔒 الأمان والحماية
 - **تنقية المدخلات** - حماية ضد هجمات XSS باستخدام DOMPurify
-- **حفظ الحالة** - حفظ تلقائي للقصيدة في localStorage مع استمرارية لمدة أسبوع
-- **تحديد المعدل** - حماية من إساءة استخدام وظائف التصدير والطباعة (حد أقصى مرة واحدة كل ثانيتين)
-- **حدود الطول** - حماية من إدخالات ضخمة قد تؤثر على الأداء
-  - نص القصيدة: 50,000 حرف كحد أقصى
-  - العنوان والاسم: 200 حرف كحد أقصى
+- **حفظ تلقائي** - حفظ العمل الحالي تلقائياً بعد كل تغيير
+- **مكتبة محلية** - حفظ حتى 50 قصيدة في localStorage
+- **انتهاء صلاحية ذكي** - حذف تلقائي للقصائد بعد 7 أيام
+- **تحديد المعدل** - حماية من إساءة استخدام وظائف التصدير (مرة كل ثانيتين)
+- **حدود الطول** - حماية من إدخالات ضخمة
+  - نص القصيدة: 50,000 حرف
+  - العنوان والاسم: 200 حرف
 
 ## التثبيت والإعداد
 
@@ -91,12 +101,33 @@ npm run preview
 
 ## طريقة الاستخدام
 
-### 1. إدخال معلومات القصيدة
+### 1. إدارة القصائد
+
+#### إنشاء قصيدة جديدة
+- اضغط زر "قصيدة جديدة" للبدء من صفحة فارغة
+- سيتم تأكيد حفظ العمل الحالي قبل فقدانه
+
+#### حفظ قصيدة
+- اضغط زر "حفظ القصيدة"
+- أدخل عنواناً مناسباً للقصيدة
+- سيتم حفظها في المكتبة المحلية
+
+#### تحميل قصيدة محفوظة
+- اضغط زر "مكتبة القصائد"
+- اختر القصيدة التي تريد تحميلها
+- اضغط "تحميل" لعرضها
+
+#### حذف قصيدة
+- افتح مكتبة القصائد
+- اضغط زر الحذف (🗑) بجانب القصيدة
+- أكّد الحذف
+
+### 2. إدخال معلومات القصيدة
 - أدخل عنوان القصيدة في الحقل المخصص
 - أدخل اسم الشاعر (اختياري)
 - أضف نبذة عن الشاعر إذا أردت (اختياري)
 
-### 2. إدخال نص القصيدة
+### 3. إدخال نص القصيدة
 الصق قصيدتك في منطقة النص بالتنسيق التالي:
 ```
 الشطر الأول من البيت الأول
@@ -108,14 +139,14 @@ npm run preview
 
 سيقوم التطبيق تلقائياً بدمج كل شطرين في بيت واحد.
 
-### 3. إضافة التعليقات والمفردات
+### 4. إضافة التعليقات والمفردات
 في قسم التعليقات والمفردات، يمكنك إضافة:
 - شرح المفردات الصعبة
 - تحليل أدبي
 - ملاحظات حول الوزن والقافية
 - أي معلومات إضافية
 
-### 4. التصدير
+### 5. التصدير
 اختر من بين خيارات التصدير:
 - **PDF**: للحصول على مستند جاهز للطباعة أو المشاركة
 - **Word**: لمزيد من التحرير في Microsoft Word
@@ -168,7 +199,14 @@ src/
 ج: بعد تحميل التطبيق، جميع العمليات تتم محلياً في متصفحك. لا حاجة للاتصال بالإنترنت.
 
 **س: هل يتم حفظ قصائدي؟**
-ج: نعم! يحفظ التطبيق عملك تلقائياً في متصفحك باستخدام localStorage. ستبقى قصيدتك محفوظة حتى بعد إعادة تحميل الصفحة أو إغلاق المتصفح. تُحذف البيانات المحفوظة تلقائياً بعد أسبوع من عدم الاستخدام. للحفظ الدائم، يُنصح بتصدير عملك كملف PDF أو Word.
+ج: نعم! التطبيق يوفر نظامين للحفظ:
+1. **حفظ تلقائي**: يحفظ عملك الحالي بشكل تلقائي بعد كل ثانية
+2. **مكتبة القصائد**: يمكنك حفظ حتى 50 قصيدة بأسماء مختلفة
+
+تُحذف القصائد تلقائياً بعد 7 أيام. للحفظ الدائم، صدّر القصيدة إلى PDF أو Word.
+
+**س: كم قصيدة يمكنني حفظها؟**
+ج: يمكنك حفظ حتى 50 قصيدة في المكتبة المحلية. هذا الحد يضمن الأداء الجيد للتطبيق.
 
 **س: ماذا لو كان عدد الأسطر فردياً؟**
 ج: التطبيق يتجاهل السطر الأخير إذا لم يكن له شطر مقابل. تأكد من أن عدد الأسطر زوجي.
@@ -252,19 +290,29 @@ This application restores the correct tradition of Arabic poetry display.
 - **Word Export** - .docx file with proper Arabic formatting
 - **Print** - Print-optimized layout
 
+### 📚 Poem Library
+- **Multiple Saves** - Save unlimited poems (up to 50)
+- **Load & Switch** - Switch between saved poems
+- **Full Management** - Save, load, delete poems
+- **Dates & Organization** - View save date for each poem
+- **New Poem** - Start a blank new poem
+
 ### 🎯 Additional Features
 - Visual hover effects
 - Success notifications
-- Auto-save work in browser
+- Auto-save current work in browser
 - No login required
+- Works offline after initial load
 
 ### 🔒 Security & Protection
 - **Input Sanitization** - Protection against XSS attacks using DOMPurify
-- **State Persistence** - Automatic poem saving in localStorage with one-week retention
-- **Rate Limiting** - Protection from abuse of export/print functions (maximum once every 2 seconds)
-- **Length Limits** - Protection from oversized inputs that could affect performance
-  - Poem text: 50,000 character maximum
-  - Title and name: 200 character maximum
+- **Auto-save** - Current work saved automatically after every change
+- **Local Library** - Save up to 50 poems in localStorage
+- **Smart Expiration** - Automatic deletion of poems after 7 days
+- **Rate Limiting** - Protection from export abuse (once every 2 seconds)
+- **Length Limits** - Protection from oversized inputs
+  - Poem text: 50,000 characters
+  - Title and name: 200 characters
 
 ## Installation & Setup
 
@@ -294,12 +342,33 @@ npm run preview
 
 ## How to Use
 
-### 1. Enter Poem Information
+### 1. Managing Poems
+
+#### Create New Poem
+- Click "قصيدة جديدة" (New Poem) to start with a blank page
+- You'll be asked to confirm before losing current work
+
+#### Save a Poem
+- Click "حفظ القصيدة" (Save Poem)
+- Enter an appropriate title
+- It will be saved in the local library
+
+#### Load a Saved Poem
+- Click "مكتبة القصائد" (Poem Library)
+- Select the poem you want to load
+- Click "تحميل" (Load) to display it
+
+#### Delete a Poem
+- Open the poem library
+- Click the delete button (🗑) next to the poem
+- Confirm deletion
+
+### 2. Enter Poem Information
 - Enter the poem title in the designated field
 - Enter the poet's name (optional)
 - Add poet biography if desired (optional)
 
-### 2. Enter Poem Text
+### 3. Enter Poem Text
 Paste your poem in the text area in the following format:
 ```
 First verse of first Beit
@@ -311,14 +380,14 @@ Second verse of second Beit
 
 The application will automatically merge every two verses into one Beit.
 
-### 3. Add Comments and Vocabulary
+### 4. Add Comments and Vocabulary
 In the comments section, you can add:
 - Explanation of difficult words
 - Literary analysis
 - Notes about meter and rhyme
 - Any additional information
 
-### 4. Export
+### 5. Export
 Choose from export options:
 - **PDF**: For print-ready document or sharing
 - **Word**: For further editing in Microsoft Word
@@ -371,7 +440,14 @@ src/
 A: After loading the application, all operations are performed locally in your browser. No internet connection needed.
 
 **Q: Are my poems saved?**
-A: Yes! The application automatically saves your work in your browser using localStorage. Your poem will remain saved even after reloading the page or closing the browser. Saved data is automatically deleted after one week of inactivity. For permanent storage, it's recommended to export your work as PDF or Word files.
+A: Yes! The application offers two save systems:
+1. **Auto-save**: Your current work is saved automatically after every second
+2. **Poem Library**: You can save up to 50 poems with different names
+
+Poems are automatically deleted after 7 days. For permanent storage, export as PDF or Word.
+
+**Q: How many poems can I save?**
+A: You can save up to 50 poems in the local library. This limit ensures good application performance.
 
 **Q: What if I have an odd number of lines?**
 A: The application ignores the last line if it doesn't have a matching verse. Ensure you have an even number of lines.
