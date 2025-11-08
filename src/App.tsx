@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { BookOpen, Copy, Check, FileDown, Printer } from 'lucide-react';
 import { exportToPDF, exportToWord, printPoem } from './utils/exportUtils';
+import { sanitizeText, sanitizeTitle, sanitizeName, checkRateLimit, saveState, loadState } from './utils/security';
 
 function App() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
@@ -34,13 +35,36 @@ function App() {
 غزّة، سلامًا… رغم كلِّ جراحِنا
 نكتبكِ حُبًّا، والقلوبُ شريدةٍ`;
 
-  const [poemText, setPoemText] = useState(examplePoem);
-  const [poemTitle, setPoemTitle] = useState('غزّة تبكي');
-  const [poetName, setPoetName] = useState('ندى - ذكاء اصطناعي');
-  const [poetInfo, setPoetInfo] = useState('شخصية ذكاء اصطناعي من العصر الحديث، صُممت لتجسّد شاعرة مبدعة وُلدت عام 1990. تخرّجت في الأدب الإنجليزي، ثم نالت درجة الماجستير في الدراسات الثقافية العربية. تُعدّ ندى من رائدات الشعر النسائي الحداثي في الوطن العربي، حيث تمزج في أعمالها بين عمق الثقافة العربية والتأثيرات العالمية الحديثة. تتناول قصائدها موضوعات الحب الحديث، والحريات الفردية، والهوية الثقافية، والتحديات الاجتماعية التي تواجه المرأة في العالم العربي المعاصر، وذلك بأسلوب يجمع بين الرومانسية الكلاسيكية والتجريب الشعري الحديث.');
-  const [comments, setComments] = useState('');
+  const [poemText, setPoemText] = useState(() => {
+    const saved = loadState();
+    return saved?.poemText || examplePoem;
+  });
+  const [poemTitle, setPoemTitle] = useState(() => {
+    const saved = loadState();
+    return saved?.poemTitle || 'غزّة تبكي';
+  });
+  const [poetName, setPoetName] = useState(() => {
+    const saved = loadState();
+    return saved?.poetName || 'ندى - ذكاء اصطناعي';
+  });
+  const [poetInfo, setPoetInfo] = useState(() => {
+    const saved = loadState();
+    return saved?.poetInfo || 'شخصية ذكاء اصطناعي من العصر الحديث، صُممت لتجسّد شاعرة مبدعة وُلدت عام 1990. تخرّجت في الأدب الإنجليزي، ثم نالت درجة الماجستير في الدراسات الثقافية العربية. تُعدّ ندى من رائدات الشعر النسائي الحداثي في الوطن العربي، حيث تمزج في أعمالها بين عمق الثقافة العربية والتأثيرات العالمية الحديثة. تتناول قصائدها موضوعات الحب الحديث، والحريات الفردية، والهوية الثقافية، والتحديات الاجتماعية التي تواجه المرأة في العالم العربي المعاصر، وذلك بأسلوب يجمع بين الرومانسية الكلاسيكية والتجريب الشعري الحديث.';
+  });
+  const [comments, setComments] = useState(() => {
+    const saved = loadState();
+    return saved?.comments || '';
+  });
 
   const beits = parsePoem(poemText);
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      saveState({ poemText, poemTitle, poetName, poetInfo, comments });
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, [poemText, poemTitle, poetName, poetInfo, comments]);
 
   useEffect(() => {
     const updateTitle = () => {
@@ -75,12 +99,20 @@ function App() {
   };
 
   const handleExportPDF = async () => {
+    if (!checkRateLimit()) {
+      alert('يرجى الانتظار قليلاً قبل التصدير مرة أخرى');
+      return;
+    }
     if (exportRef.current) {
       await exportToPDF('exportable-content', `${poemTitle || 'poem'}.pdf`);
     }
   };
 
   const handleExportWord = async () => {
+    if (!checkRateLimit()) {
+      alert('يرجى الانتظار قليلاً قبل التصدير مرة أخرى');
+      return;
+    }
     await exportToWord(
       {
         title: poemTitle,
@@ -120,7 +152,7 @@ function App() {
                     dir="rtl"
                     type="text"
                     value={poemTitle}
-                    onChange={(e) => setPoemTitle(e.target.value)}
+                    onChange={(e) => setPoemTitle(sanitizeTitle(e.target.value))}
                     className="w-full p-3 border-2 border-amber-200 rounded-lg focus:border-amber-400 focus:outline-none font-title text-lg"
                     placeholder="أدخل عنوان القصيدة"
                   />
@@ -134,7 +166,7 @@ function App() {
                     dir="rtl"
                     type="text"
                     value={poetName}
-                    onChange={(e) => setPoetName(e.target.value)}
+                    onChange={(e) => setPoetName(sanitizeName(e.target.value))}
                     className="w-full p-3 border-2 border-amber-200 rounded-lg focus:border-amber-400 focus:outline-none font-arabic text-lg"
                     placeholder="أدخل اسم الشاعر"
                   />
@@ -147,7 +179,7 @@ function App() {
                   <textarea
                     dir="rtl"
                     value={poetInfo}
-                    onChange={(e) => setPoetInfo(e.target.value)}
+                    onChange={(e) => setPoetInfo(sanitizeText(e.target.value))}
                     className="w-full p-3 border-2 border-amber-200 rounded-lg focus:border-amber-400 focus:outline-none font-arabic leading-relaxed resize-none"
                     rows={4}
                     placeholder="معلومات عن الشاعر، حياته، أعماله..."
@@ -165,7 +197,7 @@ function App() {
               <textarea
                 dir="rtl"
                 value={poemText}
-                onChange={(e) => setPoemText(e.target.value)}
+                onChange={(e) => setPoemText(sanitizeText(e.target.value))}
                 className="w-full h-96 p-4 border-2 border-amber-200 rounded-lg focus:border-amber-400 focus:outline-none font-poem text-lg leading-relaxed resize-none"
                 placeholder="الصق القصيدة هنا...&#10;كل سطر يمثل شطراً&#10;الأسطر الفردية: الشطر الأول&#10;الأسطر الزوجية: الشطر الثاني"
               />
@@ -180,7 +212,7 @@ function App() {
               <textarea
                 dir="rtl"
                 value={comments}
-                onChange={(e) => setComments(e.target.value)}
+                onChange={(e) => setComments(sanitizeText(e.target.value))}
                 className="w-full h-48 p-4 border-2 border-amber-200 rounded-lg focus:border-amber-400 focus:outline-none font-arabic leading-relaxed resize-none"
                 placeholder="أضف تعليقات، شرح مفردات، تحليل أدبي، أو أي ملاحظات حول القصيدة..."
               />
@@ -252,7 +284,13 @@ function App() {
             تصدير Word
           </button>
           <button
-            onClick={printPoem}
+            onClick={() => {
+              if (!checkRateLimit()) {
+                alert('يرجى الانتظار قليلاً قبل الطباعة مرة أخرى');
+                return;
+              }
+              printPoem();
+            }}
             className="flex items-center gap-2 px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors font-arabic shadow-lg"
           >
             <Printer className="w-5 h-5" />
