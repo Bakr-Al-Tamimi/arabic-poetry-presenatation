@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { BookOpen, Copy, Check, FileDown, Printer } from 'lucide-react';
 import { exportToPDF, exportToWord, printPoem } from './utils/exportUtils';
-import { sanitizeText, sanitizeTitle, sanitizeName, checkRateLimit, saveState, loadState } from './utils/security';
+import { sanitizeText, sanitizeTitle, sanitizeName, checkRateLimit, saveState, loadState, SavedPoem } from './utils/security';
+import PoemLibrary from './components/PoemLibrary';
 
 function App() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const exportRef = useRef<HTMLDivElement>(null);
+  const [currentPoemId, setCurrentPoemId] = useState<string | null>(null);
 
   const parsePoem = (text: string): string[][] => {
     const lines = text.split('\n').filter(line => line.trim() !== '');
@@ -125,15 +127,47 @@ function App() {
     );
   };
 
+  const handleLoadPoem = (poem: SavedPoem) => {
+    setPoemTitle(poem.title);
+    setPoetName(poem.poetName);
+    setPoetInfo(poem.poetInfo);
+    setPoemText(poem.poemText);
+    setComments(poem.comments);
+    setCurrentPoemId(poem.id);
+  };
+
+  const handleNewPoem = () => {
+    if (confirm('هل تريد إنشاء قصيدة جديدة؟ سيتم فقدان التغييرات غير المحفوظة.')) {
+      setPoemTitle('');
+      setPoetName('');
+      setPoetInfo('');
+      setPoemText('');
+      setComments('');
+      setCurrentPoemId(null);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-amber-100">
       <div className="container mx-auto px-4 py-12 max-w-7xl">
-        <header className="text-center mb-12 no-print">
+        <header className="text-center mb-8 no-print">
           <div className="flex items-center justify-center gap-3 mb-4">
             <BookOpen className="w-10 h-10 text-amber-800" strokeWidth={1.5} />
             <h1 className="text-4xl font-bold text-amber-900 font-title">عرض الشعر العربي</h1>
           </div>
-          <p className="text-amber-700 text-lg">Arabic Poetry Presentation</p>
+          <p className="text-amber-700 text-lg mb-6">Arabic Poetry Presentation</p>
+
+          <PoemLibrary
+            currentPoem={{
+              title: poemTitle,
+              poetName,
+              poetInfo,
+              poemText,
+              comments,
+            }}
+            onLoadPoem={handleLoadPoem}
+            onNewPoem={handleNewPoem}
+          />
         </header>
 
         <div className="grid lg:grid-cols-2 gap-8 mb-8 no-print">

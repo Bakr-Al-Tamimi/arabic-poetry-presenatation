@@ -4,6 +4,7 @@ const MAX_TEXT_LENGTH = 50000;
 const MAX_TITLE_LENGTH = 200;
 const MAX_NAME_LENGTH = 200;
 const RATE_LIMIT_MS = 2000;
+const MAX_POEMS = 50;
 
 let lastExportTime = 0;
 
@@ -37,6 +38,7 @@ export const checkRateLimit = (): boolean => {
 };
 
 export const STORAGE_KEY = 'arabic_poetry_state';
+export const POEMS_LIBRARY_KEY = 'arabic_poetry_library';
 
 export interface PersistedState {
   poemText: string;
@@ -44,6 +46,17 @@ export interface PersistedState {
   poetName: string;
   poetInfo: string;
   comments: string;
+  lastUpdated: number;
+}
+
+export interface SavedPoem {
+  id: string;
+  title: string;
+  poetName: string;
+  poetInfo: string;
+  poemText: string;
+  comments: string;
+  savedAt: number;
   lastUpdated: number;
 }
 
@@ -83,5 +96,89 @@ export const loadState = (): PersistedState | null => {
   } catch (error) {
     console.error('Failed to load state:', error);
     return null;
+  }
+};
+
+export const getSavedPoems = (): SavedPoem[] => {
+  try {
+    const stored = localStorage.getItem(POEMS_LIBRARY_KEY);
+    if (!stored) return [];
+
+    const poems = JSON.parse(stored) as SavedPoem[];
+    const ONE_WEEK = 7 * 24 * 60 * 60 * 1000;
+
+    const validPoems = poems.filter(poem => {
+      return Date.now() - poem.lastUpdated < ONE_WEEK;
+    });
+
+    if (validPoems.length !== poems.length) {
+      localStorage.setItem(POEMS_LIBRARY_KEY, JSON.stringify(validPoems));
+    }
+
+    return validPoems.map(poem => ({
+      ...poem,
+      title: sanitizeTitle(poem.title),
+      poetName: sanitizeName(poem.poetName),
+      poetInfo: sanitizeText(poem.poetInfo),
+      poemText: sanitizeText(poem.poemText),
+      comments: sanitizeText(poem.comments),
+    }));
+  } catch (error) {
+    console.error('Failed to load poems:', error);
+    return [];
+  }
+};
+
+export const savePoem = (poem: Omit<SavedPoem, 'id' | 'savedAt' | 'lastUpdated'>): string => {
+  try {
+    const poems = getSavedPoems();
+    const id = `poem_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    const newPoem: SavedPoem = {
+      ...poem,
+      id,
+      savedAt: Date.now(),
+      lastUpdated: Date.now(),
+    };
+
+    poems.push(newPoem);
+    localStorage.setItem(POEMS_LIBRARY_KEY, JSON.stringify(poems));
+    return id;
+  } catch (error) {
+    console.error('Failed to save poem:', error);
+    throw new Error('فشل حفظ القصيدة');
+  }
+};
+
+export const deletePoem = (id: string): void => {
+  try {
+    const poems = getSavedPoems();
+    const filtered = poems.filter(poem => poem.id !== id);
+    localStorage.setItem(POEMS_LIBRARY_KEY, JSON.stringify(filtered));
+  } catch (error) {
+    console.error('Failed to delete poem:', error);
+    throw new Error('فشل حذف القصيدة');
+  }
+};
+
+export const updatePoem = (id: string, updates: Partial<Omit<SavedPoem, 'id' | 'savedAt'>>): void => {
+  try {
+    const poems = getSavedPoems();
+    const index = poems.findIndex(poem => poem.id === id);
+
+    if (index === -1) {
+      throw new Error('القصيدة غير موجودة');
+    }
+
+    poems[index] = {
+      ...poems[index],
+      ...updates,
+      lastUpdated: Date.now(),
+    };
+
+    localStorage.setItem(POEMS_LIBRARY_KEY, JSON.stringify(poems));
+  } catch (error) {
+    console.error('Failed to update poem:', error);
+    throw new Error('فشل تحديث القصيدة');
   }
 };
