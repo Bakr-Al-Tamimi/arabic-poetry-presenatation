@@ -32,8 +32,7 @@ function App() {
 من ذا يُعيدُ لنا المدى وسع المدى؟
 من ذا يُعيدُ لنا الحياةَ جديدةٍ؟
 غزّة، سلامًا… رغم كلِّ جراحِنا
-نكتبكِ حُبًّا، والقلوبُ شريدةٍ
-`;
+نكتبكِ حُبًّا، والقلوبُ شريدةٍ`;
 
   const [poemText, setPoemText] = useState(examplePoem);
   const [poemTitle, setPoemTitle] = useState('غزّة تبكي');
