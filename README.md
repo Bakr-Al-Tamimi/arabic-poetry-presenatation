@@ -52,8 +52,16 @@
 ### 🎯 مميزات إضافية
 - تأثيرات بصرية عند التفاعل
 - إشعارات نجاح العمليات
-- حفظ تلقائي للعمل
+- حفظ تلقائي للعمل في المتصفح
 - لا يتطلب تسجيل دخول
+
+### 🔒 الأمان والحماية
+- **تنقية المدخلات** - حماية ضد هجمات XSS باستخدام DOMPurify
+- **حفظ الحالة** - حفظ تلقائي للقصيدة في localStorage مع استمرارية لمدة أسبوع
+- **تحديد المعدل** - حماية من إساءة استخدام وظائف التصدير والطباعة (حد أقصى مرة واحدة كل ثانيتين)
+- **حدود الطول** - حماية من إدخالات ضخمة قد تؤثر على الأداء
+  - نص القصيدة: 50,000 حرف كحد أقصى
+  - العنوان والاسم: 200 حرف كحد أقصى
 
 ## التثبيت والإعداد
 
@@ -140,6 +148,8 @@ npm run preview
 - **Tailwind CSS** - للتصميم
 - **jsPDF** - لتوليد ملفات PDF
 - **docx** - لتوليد ملفات Word
+- **DOMPurify** - لتنقية المدخلات وحماية من XSS
+- **html2canvas** - لتحويل HTML إلى صور للتصدير
 
 ### هيكل المشروع
 ```
@@ -148,7 +158,8 @@ src/
 ├── main.tsx             # نقطة دخول التطبيق
 ├── index.css            # الأنماط العامة
 └── utils/
-    └── exportUtils.ts   # وظائف التصدير
+    ├── exportUtils.ts   # وظائف التصدير (PDF، Word، طباعة)
+    └── security.ts      # وظائف الأمان (تنقية، حفظ الحالة، تحديد المعدل)
 ```
 
 ## الأسئلة الشائعة
@@ -157,7 +168,7 @@ src/
 ج: بعد تحميل التطبيق، جميع العمليات تتم محلياً في متصفحك. لا حاجة للاتصال بالإنترنت.
 
 **س: هل يتم حفظ قصائدي؟**
-ج: حالياً، التطبيق لا يحفظ القصائد بشكل دائم. تأكد من تصدير عملك قبل إغلاق المتصفح.
+ج: نعم! يحفظ التطبيق عملك تلقائياً في متصفحك باستخدام localStorage. ستبقى قصيدتك محفوظة حتى بعد إعادة تحميل الصفحة أو إغلاق المتصفح. تُحذف البيانات المحفوظة تلقائياً بعد أسبوع من عدم الاستخدام. للحفظ الدائم، يُنصح بتصدير عملك كملف PDF أو Word.
 
 **س: ماذا لو كان عدد الأسطر فردياً؟**
 ج: التطبيق يتجاهل السطر الأخير إذا لم يكن له شطر مقابل. تأكد من أن عدد الأسطر زوجي.
@@ -244,8 +255,16 @@ This application restores the correct tradition of Arabic poetry display.
 ### 🎯 Additional Features
 - Visual hover effects
 - Success notifications
-- Auto-save work
+- Auto-save work in browser
 - No login required
+
+### 🔒 Security & Protection
+- **Input Sanitization** - Protection against XSS attacks using DOMPurify
+- **State Persistence** - Automatic poem saving in localStorage with one-week retention
+- **Rate Limiting** - Protection from abuse of export/print functions (maximum once every 2 seconds)
+- **Length Limits** - Protection from oversized inputs that could affect performance
+  - Poem text: 50,000 character maximum
+  - Title and name: 200 character maximum
 
 ## Installation & Setup
 
@@ -332,6 +351,8 @@ Choose from export options:
 - **Tailwind CSS** - Styling
 - **jsPDF** - PDF generation
 - **docx** - Word document generation
+- **DOMPurify** - Input sanitization and XSS protection
+- **html2canvas** - HTML to image conversion for export
 
 ### Project Structure
 ```
@@ -340,7 +361,8 @@ src/
 ├── main.tsx             # Application entry
 ├── index.css            # Global styles
 └── utils/
-    └── exportUtils.ts   # Export functions
+    ├── exportUtils.ts   # Export functions (PDF, Word, print)
+    └── security.ts      # Security functions (sanitization, state persistence, rate limiting)
 ```
 
 ## Frequently Asked Questions
@@ -349,7 +371,7 @@ src/
 A: After loading the application, all operations are performed locally in your browser. No internet connection needed.
 
 **Q: Are my poems saved?**
-A: Currently, the application does not permanently save poems. Make sure to export your work before closing the browser.
+A: Yes! The application automatically saves your work in your browser using localStorage. Your poem will remain saved even after reloading the page or closing the browser. Saved data is automatically deleted after one week of inactivity. For permanent storage, it's recommended to export your work as PDF or Word files.
 
 **Q: What if I have an odd number of lines?**
 A: The application ignores the last line if it doesn't have a matching verse. Ensure you have an even number of lines.
