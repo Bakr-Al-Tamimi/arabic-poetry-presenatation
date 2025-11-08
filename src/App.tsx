@@ -47,9 +47,15 @@ function App() {
       const titleParts = [];
       if (poemTitle) titleParts.push(poemTitle);
       if (poetName) titleParts.push(`- ${poetName}`);
-      document.title = titleParts.length > 0 ? titleParts.join(' ') : 'عرض الشعر العربي';
+      const newTitle = titleParts.length > 0 ? titleParts.join(' ') : 'عرض الشعر العربي';
+
+      if (document.title !== newTitle) {
+        document.title = newTitle;
+      }
     };
-    updateTitle();
+
+    const timeoutId = setTimeout(updateTitle, 0);
+    return () => clearTimeout(timeoutId);
   }, [poemTitle, poetName]);
 
   const copyBeit = async (frontVerse: string, backVerse: string, index: number) => {
