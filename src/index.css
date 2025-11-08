@@ -4,10 +4,32 @@
 
 @layer base {
   .font-arabic {
-    font-family: 'Amiri', 'Traditional Arabic', 'Arabic Typesetting', 'Geeza Pro', 'Simplified Arabic', serif;
+    font-family: 'Readex Pro', 'Segoe UI', Tahoma, sans-serif;
+  }
+
+  .font-poem {
+    font-family: 'Amiri Quran', 'Traditional Arabic', serif;
+  }
+
+  .font-title {
+    font-family: 'Noto Kufi Arabic', 'Arabic Typesetting', sans-serif;
   }
 
   body {
     font-family: system-ui, -apple-system, sans-serif;
+  }
+
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+
+    .print-section {
+      page-break-inside: avoid;
+    }
+
+    body {
+      background: white !important;
+    }
   }
 }
