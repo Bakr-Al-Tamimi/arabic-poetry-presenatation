@@ -57,7 +57,7 @@ function App() {
         <header className="text-center mb-12">
           <div className="flex items-center justify-center gap-3 mb-4">
             <BookOpen className="w-10 h-10 text-amber-800" strokeWidth={1.5} />
-            <h1 className="text-4xl font-bold text-amber-900">عرض الشعر العربي</h1>
+            <h1 className="text-4xl font-bold text-amber-900">تشطير الشعر العربي</h1>
           </div>
           <p className="text-amber-700 text-lg">Arabic Poetry Presentation</p>
         </header>
@@ -73,7 +73,7 @@ function App() {
               value={poemText}
               onChange={(e) => setPoemText(e.target.value)}
               className="w-full h-96 p-4 border-2 border-amber-200 rounded-lg focus:border-amber-400 focus:outline-none font-arabic text-lg leading-relaxed resize-none"
-              placeholder="الصق القصيدة هنا...&#10;كل سطر يمثل شطراً&#10;الأسطر الفردية: الشطر الأول&#10;الأسطر الزوجية: الشطر الثاني"
+              placeholder="الصق القصيدة هنا...&#10;كل سطر يمثل شطراً من بيت، السطر الفردي صدر البيت والسطر الزوجي عجز البيت ، الصق هنا جميع البيوت ، كل بيت مجزأ على شطرين، اسطر يحتوي صدر البيت والسطر التالي عجز البيت&#10;الأسطر الفردية:  صدور البيوت&#10;الأسطر الزوجية:أعجاز البيوت"
             />
             <p className="text-sm text-amber-600 mt-3 text-right">
               عدد الأبيات: {beits.length}
@@ -153,7 +153,7 @@ function App() {
 
         <footer className="mt-12 text-center text-amber-700">
           <p className="text-sm">
-            تطبيق لعرض الشعر العربي بالطريقة التقليدية - كل بيت في سطر واحد
+            برنامج لتشطير بيوت الشعر العربي و تدوين الشعر العربي بالطريقة التقليدية - كل بيت، صدره وعجزه في سطر واحد، و القصيدة  في ابيات ، سطراً تلو سطر، و بيتاً تلو بيت حتى تكتمل القصيدة، مع امكانية نسخ القصيدة كاملة أو نسخ بيت محدد
           </p>
         </footer>
       </div>
