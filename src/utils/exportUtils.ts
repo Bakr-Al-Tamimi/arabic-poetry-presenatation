@@ -158,5 +158,9 @@ export const exportToWord = async (poemData: PoemData, filename: string) => {
 };
 
 export const printPoem = () => {
-  window.print();
+  try {
+    window.print();
+  } catch (error) {
+    console.error('Print error:', error);
+  }
 };
