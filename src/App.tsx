@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { BookOpen, Copy, Check, FileDown, Printer } from 'lucide-react';
 import { exportToPDF, exportToWord, printPoem } from './utils/exportUtils';
 
@@ -24,23 +24,33 @@ function App() {
 بيتٌ تناثرَ مثلَ حلمٍ غائمٍ
 وأمٌّ تنادي: أينَ صوتُ وليدة؟
 سقطتْ نوافذُنا على أعمارِنا
-وغدًا نحاولُ أن نُرمّمَ جِيدَه
+وغدًا نحاولُ أننعيش عنيدة
 طفلٌ يلوّنُ بالرصاصِ دفاتراً
-يا ربُّ، من يرثي الطفولةَ الفقيدة؟
+يا ربُّ، من يرثي البريئ فقيدة؟
 أحجارُنا كتبٌ، وساحاتُ الدمى
 منفىً، وحلمُ العائدينَ قصيدة
 من ذا يُعيدُ لنا المدى متّسعًا؟
-من ذا يُعيدُ لنا الحياةَ الجديدة؟
+من ذا يُعيدُ لنا الحياةَ جديدة؟
 غزّة، سلامًا… رغم كلِّ جراحِنا
 نكتبكِ حُبًّا، والقلوبُ شريدة`;
 
   const [poemText, setPoemText] = useState(examplePoem);
   const [poemTitle, setPoemTitle] = useState('غزّة تبكي');
-  const [poetName, setPoetName] = useState('');
-  const [poetInfo, setPoetInfo] = useState('');
+  const [poetName, setPoetName] = useState('ندى - ذكاء اصطناعي');
+  const [poetInfo, setPoetInfo] = useState('شخصية ذكاء اصطناعي من العصر الحديث، صُممت لتجسّد شاعرة مبدعة وُلدت عام 1990. تخرّجت في الأدب الإنجليزي، ثم نالت درجة الماجستير في الدراسات الثقافية العربية. تُعدّ ندى من رائدات الشعر النسائي الحداثي في الوطن العربي، حيث تمزج في أعمالها بين عمق الثقافة العربية والتأثيرات العالمية الحديثة. تتناول قصائدها موضوعات الحب الحديث، والحريات الفردية، والهوية الثقافية، والتحديات الاجتماعية التي تواجه المرأة في العالم العربي المعاصر، وذلك بأسلوب يجمع بين الرومانسية الكلاسيكية والتجريب الشعري الحديث.');
   const [comments, setComments] = useState('');
 
   const beits = parsePoem(poemText);
+
+  useEffect(() => {
+    const updateTitle = () => {
+      const titleParts = [];
+      if (poemTitle) titleParts.push(poemTitle);
+      if (poetName) titleParts.push(`- ${poetName}`);
+      document.title = titleParts.length > 0 ? titleParts.join(' ') : 'عرض الشعر العربي';
+    };
+    updateTitle();
+  }, [poemTitle, poetName]);
 
   const copyBeit = async (frontVerse: string, backVerse: string, index: number) => {
     const formattedBeit = `${frontVerse}\t\t${backVerse}`;
